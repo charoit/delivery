@@ -1,1 +1,1 @@
-delivery
+Web application for delivery service
