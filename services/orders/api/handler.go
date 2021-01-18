@@ -9,80 +9,55 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Handler struct {
-	useCase orders.UseCase
+type handler struct {
+	service orders.Service
 }
 
-func NewHandler(useCase orders.UseCase) *Handler {
-	return &Handler{
-		useCase: useCase,
+func NewHandler(svc orders.Service) *handler {
+	return &handler{
+		service: svc,
 	}
 }
 
-func (h *Handler) Create(c *gin.Context) {
-	order := &orders.CreateOrder{}
+func (h *handler) OrderCreate(c *gin.Context) {
+	order := &orders.Order{}
 	if err := c.BindJSON(order); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	user := c.MustGet(auth.CtxUserKey).(*models.Manager)
+	user := c.MustGet(auth.CtxUserKey).(*models.User)
 
-	if err := h.useCase.CreateOrder(c.Request.Context(), user, order); err != nil {
+	if err := h.service.Create(c.Request.Context(), user, order); err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-
 	c.Status(http.StatusOK)
 }
 
-func (h *Handler) Get(c *gin.Context) {
+func (h *handler) OrderList(c *gin.Context) {
+	user := c.MustGet(auth.CtxUserKey).(*models.User)
 
-	user := c.MustGet(auth.CtxUserKey).(*models.Manager)
-
-	bms, err := h.useCase.GetOrders(c.Request.Context(), user)
+	list, err := h.service.List(c.Request.Context(), user)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-
-	c.JSON(http.StatusOK, &orders.GetOrders{
-		Orders: toBookmarks(bms),
-	})
+	c.JSON(http.StatusOK, list)
 }
 
-func (h *Handler) Delete(c *gin.Context) {
-	inp := &orders.DeleteOrder{}
+func (h *handler) OrderRemove(c *gin.Context) {
+	inp := &orders.Remove{}
 	if err := c.BindJSON(inp); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	user := c.MustGet(auth.CtxUserKey).(*models.Manager)
+	user := c.MustGet(auth.CtxUserKey).(*models.User)
 
-	if err := h.useCase.DeleteOrder(c.Request.Context(), user, inp); err != nil {
+	if err := h.service.Remove(c.Request.Context(), user, inp); err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-
 	c.Status(http.StatusOK)
-}
-
-func toBookmarks(bs []*models.Order) []*orders.CreateOrder {
-	out := make([]*orders.CreateOrder, len(bs))
-
-	for i, b := range bs {
-		out[i] = toBookmark(b)
-	}
-
-	return out
-}
-
-func toBookmark(o *models.Order) *orders.CreateOrder {
-	return &orders.CreateOrder{
-		ID:          o.ID,
-		Number:      o.Number,
-		DeliveryId:  o.Delivery.ID,
-		RecipientId: o.Recipient.ID,
-	}
 }

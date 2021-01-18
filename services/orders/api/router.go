@@ -5,13 +5,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterHTTPEndpoints(router *gin.RouterGroup, uc orders.UseCase) {
-	h := NewHandler(uc)
-	orders := router.Group("/orders")
+func RegisterHTTPEndpoints(router *gin.RouterGroup, svc orders.Service) {
+	h := NewHandler(svc)
+	order := router.Group("/orders")
 	{
-		orders.POST("", h.Create)
-		orders.GET("", h.Get)
-		orders.DELETE("", h.Delete)
+		order.POST("", h.OrderCreate)
+		order.DELETE("", h.OrderRemove)
+		order.GET("", h.OrderList)
 	}
 }
 

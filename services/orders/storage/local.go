@@ -4,57 +4,57 @@ import (
 	"context"
 	"delivery/models"
 	"github.com/pkg/errors"
+	"strings"
 	"sync"
 )
 
 var ErrOrderNotFound = errors.New("order not found")
 
-type OrderLocalStorage struct {
+type localStorage struct {
 	*sync.RWMutex
 	orders map[string]*models.Order
 }
 
-func NewBookmarkLocalStorage() *OrderLocalStorage {
-	return &OrderLocalStorage{
+func NewLocalStorage() *localStorage {
+	return &localStorage{
 		RWMutex: &sync.RWMutex{},
 		orders: make(map[string]*models.Order),
 	}
 }
 
-func (s *OrderLocalStorage) CreateOrder(ctx context.Context, m *models.Manager, o *models.Order) error {
-	o.Manager = m
+func (s *localStorage) Insert(ctx context.Context, user *models.User, order *models.Order) error {
+	order.Manager = user
 
 	s.Lock()
-	s.orders[o.ID] = o
+	s.orders[order.ID] = order
 	s.Unlock()
 
 	return nil
 }
 
-func (s *OrderLocalStorage) GetOrders(ctx context.Context, m *models.Manager) ([]*models.Order, error) {
+func (s *localStorage) List(ctx context.Context, user *models.User) ([]*models.Order, error) {
 	orders := make([]*models.Order, 0)
 
-	s.Lock()
+	s.RLock()
 	for _, o := range s.orders {
-		if o.Manager == m {
+		if strings.EqualFold(o.Manager.ID, user.ID) {
 			orders = append(orders, o)
 		}
 	}
-	s.Unlock()
+	s.RUnlock()
 
 	return orders, nil
 }
 
-func (s *OrderLocalStorage) DeleteOrder(ctx context.Context, m *models.Manager, o *models.Order) error {
+func (s *localStorage) Delete(ctx context.Context, user *models.User, order *models.Order) error {
 	s.Lock()
 	defer s.Unlock()
 
-	order, ex := s.orders[o.ID]
-	if ex && order.Manager == m {
+	o, found := s.orders[order.ID]
+	if found && strings.EqualFold(o.Manager.ID, user.ID) {
 		delete(s.orders, o.ID)
 		return nil
 	}
-
-	return ErrOrderNotFound
+	return errors.WithStack(ErrOrderNotFound)
 }
 

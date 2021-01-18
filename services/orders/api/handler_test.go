@@ -19,7 +19,7 @@ import (
 )
 
 func TestCreate(t *testing.T) {
-	testUser := &models.Manager{
+	testUser := &models.User{
 		ID: uuid.New().String(),
 	}
 
@@ -40,7 +40,7 @@ func TestCreate(t *testing.T) {
 	body, err := json.Marshal(inp)
 	assert.NoError(t, err)
 
-	uc.On("CreateOrder", testUser, inp).Return(nil)
+	uc.On("Create", testUser, inp).Return(nil)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/api/orders", bytes.NewBuffer(body))
@@ -50,7 +50,7 @@ func TestCreate(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	testUser := &models.Manager{
+	testUser := &models.User{
 		ID: uuid.New().String(),
 	}
 
@@ -75,7 +75,7 @@ func TestGet(t *testing.T) {
 		}
 	}
 
-	uc.On("GetOrders", testUser).Return(list, nil)
+	uc.On("List", testUser).Return(list, nil)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/api/orders", nil)
@@ -91,7 +91,7 @@ func TestGet(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	testUser := &models.Manager{
+	testUser := &models.User{
 		ID: uuid.New().String(),
 	}
 
@@ -111,7 +111,7 @@ func TestDelete(t *testing.T) {
 	body, err := json.Marshal(inp)
 	assert.NoError(t, err)
 
-	uc.On("DeleteOrder", testUser, inp).Return(nil)
+	uc.On("Remove", testUser, inp).Return(nil)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("DELETE", "/api/orders", bytes.NewBuffer(body))

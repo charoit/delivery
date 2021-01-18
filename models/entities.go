@@ -22,12 +22,15 @@ type Recipient struct {
 type Order struct {
 	ID        string
 	Number    string
-	Manager   *Manager
+	Manager   *User
 	Date      time.Time
 	Delivery  Address
 	Recipient Recipient
 }
 
-type Manager struct {
-	ID string
+type User struct {
+	ID        string
+	FirstName string
+	LastName  string
+	Email     string
 }

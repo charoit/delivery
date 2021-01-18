@@ -6,7 +6,10 @@ import (
 )
 
 type Storage interface {
-	CreateOrder(ctx context.Context, m *models.Manager, o *models.Order) error
-	GetOrders(ctx context.Context, m *models.Manager) ([]*models.Order, error)
-	DeleteOrder(ctx context.Context, m *models.Manager, o *models.Order) error
+	// Insert new order to storage
+	Insert(context.Context, *models.User,  *models.Order) error
+	// Delete existing order from storage
+	Delete(context.Context, *models.User,  *models.Order) error
+	// List of orders for user from storage
+	List(context.Context, *models.User) ([]*models.Order, error)
 }

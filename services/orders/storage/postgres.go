@@ -10,34 +10,34 @@ import (
 	"github.com/pkg/errors"
 )
 
-type OrderStorage struct {
+type storage struct {
 	db *sqlx.DB
 }
 
-func NewOrderStorage(db *sqlx.DB) *OrderStorage {
-	return &OrderStorage{
+func NewStorage(db *sqlx.DB) *storage {
+	return &storage{
 		db: db,
 	}
 }
 
-func (s *OrderStorage) CreateOrder(ctx context.Context, m *models.Manager, o *models.Order) error {
+func (s *storage) Insert(ctx context.Context, user *models.User, order *models.Order) error {
 	query := `INSERT INTO orders(ID, number, date) VALUES ($1, $2, $3)`
 
-	o.ID = uuid.New().String()
-	o.Manager = m
+	order.ID = uuid.New().String()
+	order.Manager = user
 
-	if _, err := s.db.ExecContext(ctx, query, o.ID, o.Number, o.Date); err != nil {
+	if _, err := s.db.ExecContext(ctx, query, order.ID, order.Number, order.Date); err != nil {
 		return errors.WithStack(err)
 	}
 	return nil
 }
 
-func (s *OrderStorage) GetOrders(ctx context.Context, m *models.Manager) ([]*models.Order, error) {
+func (s *storage) List(ctx context.Context, user *models.User) ([]*models.Order, error) {
 
 	var order models.Order
 	var list []*models.Order
 
-	rows, err := s.db.Queryx("SELECT * FROM orders WHERE manager_id = $1 ORDER BY date DESC;", m.ID)
+	rows, err := s.db.Queryx("SELECT * FROM orders WHERE manager_id = $1 ORDER BY date DESC;", user.ID)
 	for rows.Next() {
 		if err = rows.StructScan(&order); err != nil {
 			return nil, errors.WithStack(err)
@@ -47,10 +47,10 @@ func (s *OrderStorage) GetOrders(ctx context.Context, m *models.Manager) ([]*mod
 	return list, nil
 }
 
-func (s *OrderStorage) DeleteOrder(ctx context.Context, m *models.Manager, o *models.Order) error {
+func (s *storage) Delete(ctx context.Context, user *models.User, order *models.Order) error {
 	query := `DELETE FROM orders WHERE id = $1;`
 
-	if _, err := s.db.ExecContext(ctx, query, o.ID); err != nil {
+	if _, err := s.db.ExecContext(ctx, query, order.ID); err != nil {
 		return errors.WithStack(err)
 	}
 	return nil

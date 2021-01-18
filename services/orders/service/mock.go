@@ -11,17 +11,17 @@ type OrderUseCaseMock struct {
 	mock.Mock
 }
 
-func (uc *OrderUseCaseMock) CreateOrder(ctx context.Context, m *models.Manager, o *orders.CreateOrder) error {
+func (uc *OrderUseCaseMock) CreateOrder(ctx context.Context, m *models.User, o *orders.CreateOrder) error {
 	args := uc.Called(m, o)
 	return args.Error(0)
 }
 
-func (uc *OrderUseCaseMock) GetOrders(ctx context.Context, m *models.Manager) ([]*models.Order, error) {
+func (uc *OrderUseCaseMock) GetOrders(ctx context.Context, m *models.User) ([]*models.Order, error) {
 	args := uc.Called(m)
 	return args.Get(0).([]*models.Order), args.Error(1)
 }
 
-func (uc *OrderUseCaseMock) DeleteOrder(ctx context.Context, m *models.Manager, o *orders.DeleteOrder) error {
+func (uc *OrderUseCaseMock) DeleteOrder(ctx context.Context, m *models.User, o *orders.DeleteOrder) error {
 	args := uc.Called(m, o)
 	return args.Error(0)
 }

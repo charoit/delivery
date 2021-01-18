@@ -17,8 +17,8 @@ import (
 
 	"delivery/services/orders"
 	"delivery/services/orders/api"
+	"delivery/services/orders/service"
 	"delivery/services/orders/storage"
-	"delivery/services/orders/usecase"
 
 	//ordersApi "delivery/services/orders/api"
 	//ordersStorage "delivery/services/orders/storage"
@@ -27,7 +27,7 @@ import (
 
 type App struct {
 	httpServer *http.Server
-	orders     orders.UseCase
+	orders     orders.Service
 }
 
 func NewApp() *App {
@@ -35,10 +35,10 @@ func NewApp() *App {
 
 	db := initDB(pgHost)
 
-	os := storage.NewOrderStorage(db)
+	os := storage.NewStorage(db)
 	return &App{
 		httpServer: nil,
-		orders:     usecase.NewOrderUseCase(os),
+		orders:     usecase.NewService(os),
 	}
 }
 
