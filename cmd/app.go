@@ -19,10 +19,6 @@ import (
 	"delivery/services/orders/api"
 	"delivery/services/orders/service"
 	"delivery/services/orders/storage"
-
-	//ordersApi "delivery/services/orders/api"
-	//ordersStorage "delivery/services/orders/storage"
-	//ordersUseCase "delivery/services/orders/usecase"
 )
 
 type App struct {
@@ -38,7 +34,7 @@ func NewApp() *App {
 	os := storage.NewStorage(db)
 	return &App{
 		httpServer: nil,
-		orders:     usecase.NewService(os),
+		orders:     service.NewService(os),
 	}
 }
 

@@ -27,4 +27,6 @@ type Service interface {
 	Remove(context.Context, *models.User, *Remove) error
 	// List orders from API
 	List(context.Context, *models.User) (*List, error)
+	// ToOrderList convert model order list to API order list
+	ToOrderList([]*models.Order) *List
 }

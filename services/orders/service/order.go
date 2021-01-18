@@ -1,4 +1,4 @@
-package usecase
+package service
 
 import (
 	"context"
@@ -48,11 +48,11 @@ func (s *service) List(ctx context.Context, user *models.User) (*orders.List, er
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	dst := s.toOrderList(src)
+	dst := s.ToOrderList(src)
 	return dst, nil
 }
 
-func (s *service) toOrderList(src []*models.Order) *orders.List {
+func (s *service) ToOrderList(src []*models.Order) *orders.List {
 	dst := &orders.List{
 		Orders: make([]*orders.Order, len(src)),
 	}

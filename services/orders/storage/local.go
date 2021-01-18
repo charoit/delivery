@@ -18,7 +18,7 @@ type localStorage struct {
 func NewLocalStorage() *localStorage {
 	return &localStorage{
 		RWMutex: &sync.RWMutex{},
-		orders: make(map[string]*models.Order),
+		orders:  make(map[string]*models.Order),
 	}
 }
 
@@ -55,6 +55,5 @@ func (s *localStorage) Delete(ctx context.Context, user *models.User, order *mod
 		delete(s.orders, o.ID)
 		return nil
 	}
-	return errors.WithStack(ErrOrderNotFound)
+	return ErrOrderNotFound
 }
-
